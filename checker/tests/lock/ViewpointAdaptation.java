@@ -11,6 +11,9 @@ public class ViewpointAdaptation {
         protected MyClass locked;
 
         @GuardedBy("this.myLock")
+        MyClass m1;
+
+        @GuardedBy("this.myLock")
         protected MyClass locked2;
 
         public void accessLock() {
@@ -23,9 +26,11 @@ public class ViewpointAdaptation {
     class LockExampleSubclass extends LockExample {
         private final Object myLock = new Object();
 
-        @GuardedBy("myLock")
+        @GuardedBy("this.myLock")
         private MyClass locked;
 
+        @GuardedBy("this.myLock")
+        MyClass m2;
         public LockExampleSubclass() {
             final LockExampleSubclass les1 = new LockExampleSubclass();
             final LockExampleSubclass les2 = new LockExampleSubclass();
@@ -59,6 +64,9 @@ public class ViewpointAdaptation {
             this.locked = super.locked;
             //:: error: (assignment.type.incompatible)
             this.locked = super.locked2;
+
+        	//:: error: (assignment.type.incompatible)
+        	m1 = m2;
         }
 
         @Override
@@ -89,6 +97,10 @@ public class ViewpointAdaptation {
         void method(final Class1 a) {
             final Object lock = new Object();
             @GuardedBy("lock") MyClass local = new MyClass();
+
+            //:: error: (assignment.type.incompatible)
+            local = m;
+
             //:: error: (contracts.precondition.not.satisfied.field)
             local.field = new Object();
 
